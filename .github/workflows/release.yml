@@ -41,7 +41,11 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/*
+          # Explicit globs so the build backend's dist/.gitignore is never
+          # attached (it would be uploaded as 'default.gitignore').
+          files: |
+            dist/*.whl
+            dist/*.tar.gz
           generate_release_notes: true
 
   pypi:
