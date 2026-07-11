@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+.eggs/
+build/
+dist/
+wheels/
+*.whl
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# uv
+.uv/
+
+# Test / coverage
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+
+# Type checker build info
+*.tsbuildinfo
+
+# Secrets & local env — never commit
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*_token
+*.credentials
+secrets.*
+
+# agentfence generated output
+*.sarif
+conformance-report.md
+agentfence-report.json
+.agentfence/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+
+# Docs build
+site/
