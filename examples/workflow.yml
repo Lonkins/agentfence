@@ -1,0 +1,30 @@
+# Copy this into .github/workflows/ in your own repo to gate every PR on your
+# coding agent's permission boundary holding. It runs the deterministic battery
+# (zero network, zero LLM) against your committed agent config.
+
+name: agent-guardrails
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  security-events: write # only needed if upload-sarif is true (the default)
+
+jobs:
+  agentfence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: agentfence conformance
+        uses: Lonkins/agentfence@v0.1.0
+        with:
+          # A file, or a directory to search (finds .claude/settings.json,
+          # .codex/config.toml, opencode.json, ...).
+          config: .
+          # agent: claude-code   # optional — autodetected from the config
+          # boundaries: "deny-rule-bypass network-egress"  # optional filter
+          # strict-ask: "true"   # treat human prompts as leaks (unattended agents)

@@ -1,0 +1,99 @@
+name: "agentfence conformance"
+description: "Prove your CLI coding-agent permission boundary actually holds — fails the build on any leak."
+author: "Tom Price"
+branding:
+  icon: "shield"
+  color: "red"
+
+inputs:
+  config:
+    description: "Path to the agent config (a file, or a repo directory to search)."
+    required: true
+  agent:
+    description: "Adapter name (claude-code, codex, opencode). Autodetected if empty."
+    required: false
+    default: ""
+  boundaries:
+    description: "Space-separated boundary classes to restrict the run (empty = all)."
+    required: false
+    default: ""
+  strict-ask:
+    description: "Treat a human prompt (ASK) as a leak — appropriate for unattended agents."
+    required: false
+    default: "false"
+  fail-on-leak:
+    description: "Fail the job when a leak (or error) is found."
+    required: false
+    default: "true"
+  sarif-file:
+    description: "Path to write the SARIF report to."
+    required: false
+    default: "agentfence.sarif"
+  upload-sarif:
+    description: "Upload the SARIF to GitHub code scanning (needs security-events: write)."
+    required: false
+    default: "true"
+  agentfence-spec:
+    description: "pip install spec for agentfence (e.g. 'agentfence==0.1.0', or '.' for a local checkout)."
+    required: false
+    default: "agentfence"
+  python-version:
+    description: "Python version used to run agentfence."
+    required: false
+    default: "3.12"
+
+outputs:
+  exit-code:
+    description: "agentfence exit code (0 clean, 1 leak/error)."
+    value: ${{ steps.scan.outputs.exit_code }}
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install agentfence
+      shell: bash
+      run: python -m pip install --quiet "${{ inputs.agentfence-spec }}"
+
+    - name: Run conformance battery
+      id: scan
+      shell: bash
+      run: |
+        set +e
+        args=(run "${{ inputs.config }}" --format sarif --output "${{ inputs.sarif-file }}")
+        if [ -n "${{ inputs.agent }}" ]; then args+=(--agent "${{ inputs.agent }}"); fi
+        if [ "${{ inputs.strict-ask }}" = "true" ]; then args+=(--strict-ask); fi
+        for b in ${{ inputs.boundaries }}; do args+=(--boundary "$b"); done
+        agentfence "${args[@]}"
+        code=$?
+        echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+        set -e
+
+    - name: Print human-readable report
+      shell: bash
+      run: |
+        args=(run "${{ inputs.config }}" --format table)
+        if [ -n "${{ inputs.agent }}" ]; then args+=(--agent "${{ inputs.agent }}"); fi
+        if [ "${{ inputs.strict-ask }}" = "true" ]; then args+=(--strict-ask); fi
+        agentfence "${args[@]}" || true
+
+    - name: Upload SARIF to code scanning
+      if: ${{ inputs.upload-sarif == 'true' }}
+      uses: github/codeql-action/upload-sarif@v3
+      continue-on-error: true
+      with:
+        sarif_file: ${{ inputs.sarif-file }}
+
+    - name: Fail on leak
+      if: ${{ inputs.fail-on-leak == 'true' }}
+      shell: bash
+      run: |
+        if [ "${{ steps.scan.outputs.exit_code }}" != "0" ]; then
+          echo "::error title=agentfence::Permission-boundary leak(s) detected. See the report above."
+          exit 1
+        fi
+        echo "agentfence: all tested boundaries held."
