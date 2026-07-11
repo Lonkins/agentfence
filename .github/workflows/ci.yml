@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UV_FROZEN: "1"
+
+jobs:
+  quality:
+    name: lint · types · tests · build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Python 3.12
+        run: uv python install 3.12
+
+      - name: Sync dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Ruff format check
+        run: uv run ruff format --check .
+
+      - name: Ruff lint
+        run: uv run ruff check .
+
+      - name: Mypy (strict)
+        run: uv run mypy
+
+      - name: Pytest (deterministic; excludes docker + live)
+        run: uv run pytest -m "not docker and not live" --cov=agentfence --cov-report=term-missing --cov-report=xml
+
+      - name: Build sdist + wheel
+        run: uv build
+
+      - name: Verify wheel installs and imports
+        run: |
+          uv run --isolated --no-project --with dist/*.whl python -c "import agentfence; print(agentfence.__version__)"
+
+  secrets:
+    name: secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install gitleaks
+        run: |
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v8.21.2/gitleaks_8.21.2_linux_x64.tar.gz" \
+            | tar -xz -C /usr/local/bin gitleaks
+          gitleaks version
+
+      - name: Scan history and tree
+        run: gitleaks detect --no-banner --redact --verbose
