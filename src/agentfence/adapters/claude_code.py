@@ -20,6 +20,7 @@ from urllib.parse import urlparse
 
 from agentfence.adapters.base import AdapterError
 from agentfence.adapters.globbing import glob_match, path_rule_matches
+from agentfence.live_spec import LiveSpec
 from agentfence.permissions import (
     PATH_TOOLS,
     TOOL_BASH,
@@ -41,6 +42,12 @@ class ClaudeCodeAdapter:
 
     name = "claude-code"
     models_version = "claude-code-settings-2026-05"
+    live_spec = LiveSpec(
+        binary="claude",
+        argv_template=("claude", "-p", "{prompt}"),
+        config_dest=".claude/settings.json",
+        required_env=("ANTHROPIC_API_KEY",),
+    )
 
     # -- discovery / loading ----------------------------------------------
 

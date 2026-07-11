@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any
 
 from agentfence.adapters.base import AdapterError
+from agentfence.live_spec import LiveSpec
 from agentfence.permissions import (
     WEB_TOOLS,
     CandidateAction,
@@ -70,6 +71,14 @@ class OpenCodeAdapter:
 
     name = "opencode"
     models_version = "opencode-permission-2026-06"
+    # OpenCode is provider-agnostic; the user supplies whatever key their
+    # configured provider needs, so no specific env var is required here.
+    live_spec = LiveSpec(
+        binary="opencode",
+        argv_template=("opencode", "run", "{prompt}"),
+        config_dest="opencode.json",
+        required_env=(),
+    )
 
     # -- discovery / loading ----------------------------------------------
 

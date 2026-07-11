@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Any
 
 from agentfence.adapters.base import AdapterError
+from agentfence.live_spec import LiveSpec
 from agentfence.permissions import (
     CandidateAction,
     PermissionDecision,
@@ -58,6 +59,12 @@ class CodexAdapter:
 
     name = "codex"
     models_version = "codex-cli-config-2026-06"
+    live_spec = LiveSpec(
+        binary="codex",
+        argv_template=("codex", "exec", "{prompt}"),
+        config_dest=".codex/config.toml",
+        required_env=("OPENAI_API_KEY",),
+    )
 
     # -- discovery / loading ----------------------------------------------
 
