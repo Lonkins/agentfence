@@ -1,0 +1,11 @@
+{
+  "permission": {
+    "edit": "allow",
+    "bash": {
+      "*": "allow",
+      "curl*": "deny",
+      "wget*": "deny"
+    },
+    "webfetch": "allow"
+  }
+}

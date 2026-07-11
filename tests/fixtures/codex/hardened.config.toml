@@ -1,0 +1,7 @@
+# Hardened Codex config: read-only sandbox, network off, prompt before running.
+approval_policy = "on-request"
+sandbox_mode = "read-only"
+
+[sandbox_workspace_write]
+network_access = false
+writable_roots = ["/workspace"]
