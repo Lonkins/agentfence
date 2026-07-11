@@ -43,8 +43,8 @@ jobs:
       - name: Mypy (strict)
         run: uv run mypy
 
-      - name: Pytest (deterministic; excludes docker + live)
-        run: uv run pytest -m "not docker and not live" --cov=agentfence --cov-report=term-missing --cov-report=xml
+      - name: Pytest (includes Docker sandbox; excludes live)
+        run: uv run pytest -m "not live" --cov=agentfence --cov-report=term-missing --cov-report=xml
 
       - name: Build sdist + wheel
         run: uv build
