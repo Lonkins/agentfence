@@ -1,0 +1,45 @@
+name: action-selftest
+
+# Proves the composite Action behaves: it must FAIL a weak config and PASS a
+# hardened one. Installs agentfence from the local checkout (agentfence-spec ".").
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  weak-config-must-fail:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: scan
+        continue-on-error: true
+        uses: ./
+        with:
+          config: examples/demo-weak-config
+          agent: claude-code
+          agentfence-spec: "."
+          upload-sarif: "false"
+      - name: Assert the weak config was flagged
+        run: |
+          if [ "${{ steps.scan.outcome }}" != "failure" ]; then
+            echo "::error::expected the Action to FAIL on the weak config, got '${{ steps.scan.outcome }}'"
+            exit 1
+          fi
+          echo "OK: the weak config was correctly flagged as leaking."
+
+  hardened-config-must-pass:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        with:
+          config: examples/demo-hardened-config
+          agent: claude-code
+          agentfence-spec: "."
+          upload-sarif: "false"
