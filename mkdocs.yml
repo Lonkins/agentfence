@@ -1,0 +1,55 @@
+site_name: agentfence
+site_description: Conformance testing for CLI coding-agent permission boundaries
+site_url: https://lonkins.github.io/agentfence/
+repo_url: https://github.com/Lonkins/agentfence
+repo_name: Lonkins/agentfence
+copyright: Copyright &copy; 2026 Tom Price — Apache-2.0
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: red
+      accent: red
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: red
+      accent: red
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - toc.follow
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Quickstart: quickstart.md
+  - How it works: how-it-works.md
+  - Scenario catalog: scenarios.md
+  - Writing an adapter: adapters.md
+  - GitHub Action: github-action.md
+  - Threat model: threat-model.md
+  - Safe usage: safe-usage.md
+  - Design decisions:
+      - Overview: adr/index.md
+      - "0001 · ADR process": adr/0001-record-architecture-decisions.md
+      - "0002 · Deterministic modeling": adr/0002-deterministic-policy-evaluation.md
+      - "0003 · Sandbox isolation": adr/0003-docker-sandbox-isolation.md
