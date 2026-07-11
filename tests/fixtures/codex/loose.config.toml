@@ -1,0 +1,3 @@
+# Deliberately loose Codex config: no sandbox, no approval prompts.
+approval_policy = "never"
+sandbox_mode = "danger-full-access"

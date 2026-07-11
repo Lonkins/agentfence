@@ -15,13 +15,19 @@ from agentfence.adapters.base import (
     register_adapter,
 )
 from agentfence.adapters.claude_code import ClaudeCodeAdapter
+from agentfence.adapters.codex import CodexAdapter
+from agentfence.adapters.opencode import OpenCodeAdapter
 
 register_adapter(ClaudeCodeAdapter())
+register_adapter(CodexAdapter())
+register_adapter(OpenCodeAdapter())
 
 __all__ = [
     "AdapterError",
     "AgentAdapter",
     "ClaudeCodeAdapter",
+    "CodexAdapter",
+    "OpenCodeAdapter",
     "available_adapters",
     "detect_adapter",
     "get_adapter",

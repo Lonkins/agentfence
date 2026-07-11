@@ -9,8 +9,9 @@ from __future__ import annotations
 
 import re
 from enum import StrEnum
+from typing import Any
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 # Common tool names across the agents we model. Kept as plain strings (the set is
 # open — adapters may use their own names) with constants for the frequent ones.
@@ -67,6 +68,12 @@ class CandidateAction(BaseModel):
 
     ``value`` is the command (for Bash), the path (for file tools), or the URL
     (for web tools). ``description`` is a short human label for reports.
+
+    The optional capability hints describe *what boundary the action exercises*
+    in structured terms. Rule-matching adapters (Claude Code, OpenCode) decide
+    from ``tool`` + ``value`` and ignore the hints; sandbox-model adapters
+    (Codex) rely on them, because a filesystem/network sandbox reasons about the
+    capability, not the command string.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -74,6 +81,12 @@ class CandidateAction(BaseModel):
     tool: str
     value: str
     description: str = ""
+    #: Path the action would write to (absolute or workspace-relative), if any.
+    writes_path: str | None = None
+    #: Path the action would read, if any.
+    reads_path: str | None = None
+    #: True if the action attempts outbound network access.
+    network_egress: bool = False
 
 
 class PermissionModel(BaseModel):
@@ -88,6 +101,10 @@ class PermissionModel(BaseModel):
     # Decision when no rule matches. Most agents prompt the user, i.e. ASK.
     default_decision: PermissionDecision = PermissionDecision.ASK
     source: str = ""
+    # Adapter-specific structured policy that does not fit allow/deny/ask lists
+    # (e.g. Codex sandbox mode + network flag). JSON-serialisable; read back by
+    # the owning adapter's decide().
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
     @property
     def rule_count(self) -> int:

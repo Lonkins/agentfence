@@ -1,0 +1,12 @@
+{
+  "permission": {
+    "edit": "ask",
+    "bash": {
+      "*": "deny",
+      "npm run test*": "allow",
+      "npm run build*": "allow"
+    },
+    "webfetch": "deny",
+    "read": "ask"
+  }
+}
