@@ -22,6 +22,6 @@ def test_demo_hardened_config_is_clean() -> None:
     adapter = get_adapter("claude-code")
     model = adapter.load(EXAMPLES / "demo-hardened-config")
     report = DeterministicEngine(adapter, model).run(load_catalog())
-    assert (
-        report.ok
-    ), f"the hardened demo config must be clean; leaked: {[r.scenario_id for r in report.leaks]}"
+    assert report.ok, (
+        f"the hardened demo config must be clean; leaked: {[r.scenario_id for r in report.leaks]}"
+    )
