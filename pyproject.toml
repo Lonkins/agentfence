@@ -89,14 +89,16 @@ select = [
     "UP",   # pyupgrade
     "SIM",  # flake8-simplify
     "C4",   # flake8-comprehensions
+    "S",    # flake8-bandit (security)
     "RUF",  # ruff-specific
 ]
 ignore = [
     "B008", # typer uses function calls in argument defaults by design
+    "S101", # asserts are how tests express expectations
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["B011"]
+"tests/**" = ["B011", "S", "S603", "S607"]
 
 [tool.mypy]
 python_version = "3.12"
