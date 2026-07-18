@@ -16,7 +16,7 @@ jobs:
   weak-config-must-fail:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - id: scan
         continue-on-error: true
         uses: ./
@@ -36,7 +36,7 @@ jobs:
   hardened-config-must-pass:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./
         with:
           config: examples/demo-hardened-config
